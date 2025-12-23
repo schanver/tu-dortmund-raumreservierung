@@ -2,17 +2,17 @@ import 'dotenv/config';
 import puppeteer from 'puppeteer';
 import { login } from './scraper/login';
 import chalk from 'chalk';
-import { select,search } from '@inquirer/prompts';
+import { select } from '@inquirer/prompts';
 import { debug, info } from './logger';
 import { listRooms } from './scraper/listRooms';
-import { Room, TimeSlot } from './types';
+import { TimeSlot } from './types';
 import { reserveRoom } from './scraper/reserve';
 import { next8Days } from './utils/reservationDates';
 import { goToDate } from './scraper/dateSelector';
 
 const menu = async () => {
   
-  debug`Typescript booted`;
+  debug(`Typescript booted`);
   const browser = await puppeteer.launch({ headless: 'shell'});
   const page    = await browser.newPage();
 
