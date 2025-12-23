@@ -1,14 +1,15 @@
+import { ElementHandle } from "puppeteer";
+
 export interface TimeSlot {
-  hour:         string;
-  isFree:       boolean;
-  duration?:    number;
-  isOLG?:       boolean;
+  from:             string;
+  occupied:         boolean;
+  durationHours:    number;
+  element?:         ElementHandle;
 }
 
 export interface Room {
   name:         string;
-  id:           string;
-  timeSlots:    TimeSlot[];
+  slots:    TimeSlot[];
 }
 
 
