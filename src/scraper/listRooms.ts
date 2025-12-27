@@ -5,10 +5,16 @@ import { debug } from '../logger';
 export async function listRooms(page : Page) : Promise<[string,Room[]]> {
   await page.waitForSelector('div.rooms table');
   debug('Room calendar loaded');
-  let hoursLeft:string = "";
-  let hoursText = await page.waitForSelector(".wrapper > main:nth-child(1) > div:nth-child(3) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > p:nth-child(10)");
-  if (hoursText) {
-    hoursLeft = await page.evaluate(el => el.textContent, hoursText);
+  let hoursLeftText :string = "";
+
+  const listOfPs = await page.$$('div#inhalt div main table tbody tr td p');
+
+  for (const element of listOfPs) {
+    const text = await element.evaluate(el => el.textContent);
+    if (text?.includes('Noch buchbar')) {
+      hoursLeftText = text;
+      break;
+    }
   }
   
   const rows = await page.$$('div.rooms table tr');
@@ -46,7 +52,7 @@ export async function listRooms(page : Page) : Promise<[string,Room[]]> {
     result.push({ name: roomName, slots });
   }
   
-  return [hoursLeft, result];
+  return [hoursLeftText, result];
 }
 
 
