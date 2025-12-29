@@ -46,9 +46,8 @@ tsc
 ```bash
 npm start
 ```
-
-# LIZENZ
-[LICENSE](./LICENSE.md)
+## LIZENZ
+Dieses Projekt ist unter der [MIT](./LICENSE.md)-Lizenz lizenziert 
 
 
 
