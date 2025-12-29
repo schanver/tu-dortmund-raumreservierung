@@ -1,16 +1,16 @@
 import { select, input } from "@inquirer/prompts";
 import chalk from "chalk";
 import { Page } from "puppeteer"
-import { Room, TimeSlot } from "../types";
-import { debug, info } from "../logger";
+import { TimeSlot } from "../types.js";
+import { debug, info } from "../logger.js";
 
 export async function reserveRoom(page: Page, slot : TimeSlot) {
   try {
   if(slot.element){
-    info("Clicking on the booking link...");
+    info(`Auf den Buchungslink klicken...`);
     await slot.element.click()
     await page.waitForNavigation({ waitUntil: 'networkidle2' });
-    debug("Booking page loaded")
+    debug(`Buchungsseite ist geladen`)
 
       const endTimes = await page.$$eval('select[name="bis"] option', options => 
         options.map(opt => opt.textContent?.trim() || '')
@@ -24,13 +24,13 @@ export async function reserveRoom(page: Page, slot : TimeSlot) {
       );
 
       const title = await input({
-        message: 'Enter reservation title (required):',
+        message: 'Titel (Pflichtfeld):',
         validate: (input) => {
           if (!input || input.trim().length === 0) {
-            return 'Title is required!';
+            return 'Title ist erforderlich!';
           }
           if (input.length > 32) {
-            return 'Title must be 32 characters or less!';
+            return chalk.red('Der Titel dar maximal 32 Zeichen lang sein!');
           }
           return true;
         }
@@ -38,11 +38,11 @@ export async function reserveRoom(page: Page, slot : TimeSlot) {
 
         const reservationType = await select(
         {
-          message: 'Select reservation type:',
+          message: 'Status:',
           choices: reservationTypes
         });
       const endTime = await select({
-          message: 'Select end time:',
+          message: 'Bis:',
           choices: endTimes.map(time => ({
             name: time,
             value: time
@@ -50,7 +50,7 @@ export async function reserveRoom(page: Page, slot : TimeSlot) {
         }
       );
 
-      info("Filling out the form...");
+    info(`Formular wird ausgefüllt...`);
 
       await page.type('input[name="comment"]', title);
 
@@ -58,20 +58,19 @@ export async function reserveRoom(page: Page, slot : TimeSlot) {
 
       await page.select('select[name="bis"]', endTime);
 
-      info(`Form filled with:`);
-      info(`  Title: ${title}`);
-      info(`  Type: ${reservationType}`);
-      info(`  End time: ${endTime}`);
+      info(chalk.green(`Formular ausgefüllt mit:`));
+      info(`  Titel: ${title}`);
+      info(`  Status: ${reservationType}`);
+      info(`  Bis: ${endTime}`);
 
-
-
+      await page.click('input[value=Reservieren]');
+      await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+      await new Promise(resolve => setTimeout(resolve, 2000));
   } else {
-      info("Error: No clickable element found for this slot");
+      info(`Fehler: Für diesen Slot wurde kein anklickbares Element gefunden.`);
   }
-
-
   } catch(e) {
-    debug`Error occurred: ${e}`;
+    debug(`Fehler aufgetreten: ${e}`);
     console.error(e);
   }
 }
