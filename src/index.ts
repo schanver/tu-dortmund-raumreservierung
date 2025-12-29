@@ -1,27 +1,26 @@
-import 'dotenv/config';
 import puppeteer from 'puppeteer';
-import { login } from './scraper/login';
+import { login } from './scraper/login.js';
 import chalk from 'chalk';
 import { select } from '@inquirer/prompts';
-import { debug, info } from './logger';
-import { listRooms } from './scraper/listRooms';
-import { TimeSlot } from './types';
-import { reserveRoom } from './scraper/reserve';
-import { next8Days } from './utils/reservationDates';
-import { goToDate } from './scraper/dateSelector';
+import { debug, info } from './logger.js';
+import { listRooms } from './scraper/listRooms.js';
+import { TimeSlot } from './types.js';
+import { reserveRoom } from './scraper/reserve.js';
+import { next8Days } from './utils/reservationDates.js';
+import { goToDate } from './scraper/dateSelector.js';
 
 const menu = async () => {
   
-  debug(`Typescript booted`);
-  const browser = await puppeteer.launch({ headless: 'shell'});
+  debug(`Typescript gestartet`);
+  const browser = await puppeteer.launch({ headless:true });
   const page    = await browser.newPage();
 
   try {
     await login(page);
-    info(`Logged in successfully...`);
+    info(`Erfolgreich angemeldet...`);
 
     const timestamp  = await select({
-      message: 'Choose the day of reservation:',
+      message: `Wählen Sie den Tag der Reservierung:`,
       choices: next8Days()
     });
 
@@ -29,13 +28,13 @@ const menu = async () => {
 
     const [hoursLeft, rooms] = await listRooms(page);
     if(rooms.length === 0) {
-      info(`No rooms found.`);
+      info(`Keine Lernräume gefunden.`);
       return;
     }
 
     const selectedRoom  = await select(
       {
-        message: `Available hours: ${hoursLeft.split(" ")[2]}\nSelect a room:`,
+        message: `Noch buchbar: ${hoursLeft.split(" ")[2]} Stunden\nWählen Sie den Lernraum:`,
         choices: rooms.map(r => ({
         name: chalk(r.name),
         value: r
@@ -43,24 +42,24 @@ const menu = async () => {
       }
     );
     
-      debug('Selected room:', selectedRoom);
+      debug('Ausgewählter Lernraum:', selectedRoom);
     
     if(!selectedRoom.slots || selectedRoom.slots.length === 0) {
-      info(`No slots available for ${selectedRoom.name}`);
+      info(chalk.red(`Keine freien Plätze für ${selectedRoom.name}`));
       return;
     }
     
     const availableSlots = selectedRoom.slots.filter((slot : TimeSlot) => !slot.occupied);
     
     if(availableSlots.length === 0) {
-      info(`No available (unoccupied) slots for ${selectedRoom.name}`);
+      info(`Keine freie Plätze für ${selectedRoom.name}`);
       return;
     }
     
     const selectedSlot = await select({
-      message: `Available slots for ${selectedRoom.name}:`,
+      message: `Verfügbare Zeitfenster für ${selectedRoom.name}:`,
       choices: availableSlots.map((slot : TimeSlot) => ({
-        name: `From ${slot.from} | Duration: ${slot.durationHours} h`,
+        name: `Von ${slot.from} | Dauer: ${slot.durationHours} St.`,
         value: slot
       })),
     });
@@ -68,17 +67,14 @@ const menu = async () => {
     await reserveRoom(page,selectedSlot);
 
   } catch (e) {
-    debug(`Error occurred: ${e}`);
+    debug(`Fehler aufgetreten: ${e}`);
     console.error(e);
   }
   finally {
-    info(`Finished operation, closing the browser...`);
-    await page.close();
+    info(`Vorgang abgeschlossen, Browser wird geschlossen...`);
     await browser.close();
+    return;
   }
 }
 
-
-
-
-menu();
+await menu();
