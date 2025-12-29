@@ -3,7 +3,7 @@ Automatisiertes Tool zur Reservierung von Lernräumen der Fakultät Informatik a
 Interaktiv wählt das Tool Datum, Raum und Zeitfenster aus und reserviert den Raum automatich über die Webseite.
 
 ## 🛠 Voraussetzungen
-- [Node.js](nodejs.org) v18+
+- [Node.js](https://nodejs.org) v18+
 - npm
 - Fakultät-Mailaccount oder Fakultät-Poolaccount
 
