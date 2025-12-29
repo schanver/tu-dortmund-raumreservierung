@@ -19,7 +19,7 @@ npm install
 ```
 3.`.env`-Datei bearbeiten
 ```env
-USERNAME=                   #Fakultäts-Mailaccount (ohne @cs.tu-dortmund.de) oder Fakultäts-Poolaccount 
+USERNAME=                   #Fakultät-Mailaccount (ohne @cs.tu-dortmund.de) oder Fakultät-Poolaccount 
 PASSWORD=                   #dein Passwort
 DEBUG= [true|false]         #für Debugging
 ```
