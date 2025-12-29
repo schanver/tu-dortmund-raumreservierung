@@ -21,7 +21,7 @@ npm install
 ```env
 USERNAME=                   #Fakultäts-Mailaccount (ohne @cs.tu-dortmund.de) oder Fakultäts-Poolaccount 
 PASSWORD=                   #dein Passwort
-DEBUG=                      #für Debugging
+DEBUG= [true|false]         #für Debugging
 ```
 4. Das Programm ausführen:
 ```bash
