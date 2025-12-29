@@ -38,7 +38,7 @@ npm run dev
 ```bash
 npm run build
 ```
-or:
+oder:
 ```bash
 tsc
 ```
