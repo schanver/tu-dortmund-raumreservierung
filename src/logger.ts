@@ -1,4 +1,4 @@
-import chalk from "chalk";
+import gray from "chalk";
 export const isDebug = 
   process.env.DEBUG === 'true' ||
   process.env.DEBUG === '1';
@@ -6,7 +6,7 @@ export const isDebug =
 export function debug(...args: unknown[]) {
 
   if(isDebug) {
-    chalk.gray(console.log('[DEBUG]', ...args));
+    gray(console.log('[DEBUG]', ...args));
   }
 }
 
