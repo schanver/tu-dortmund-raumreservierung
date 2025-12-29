@@ -1,5 +1,8 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import chalk from 'chalk';
+import { PROJECT_ROOT } from './paths.js';
+
+dotenv.config({ path: `${PROJECT_ROOT}/.env` });
 
 export const config = {
   portalUrl: process.env.PORTAL_URL || '',
@@ -8,5 +11,6 @@ export const config = {
 };
 
 if (!config.portalUrl || !config.username || !config.password) {
-  throw new Error('Missing required environment variables in .env');
+  console.error(chalk.red("Erforderliche Umgebungsvariablen in .env fehlen"));
+  process.exit(1);
 }
