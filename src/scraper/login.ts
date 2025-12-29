@@ -1,5 +1,5 @@
-import { debug } from '../logger';
-import { config } from '../config';
+import { debug } from '../logger.js';
+import { config } from '../config.js';
 import { Page } from 'puppeteer';
 
 export async function login(page: Page) {
@@ -8,7 +8,7 @@ export async function login(page: Page) {
   await page.type('#password', config.password);
   await page.click('.btn');
   await page.waitForNetworkIdle();
-  debug("Dashboard loaded");
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  debug("Dashboard geladen");
+  //await new Promise(resolve => setTimeout(resolve, 2000));
 }
 

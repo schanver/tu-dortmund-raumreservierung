@@ -3,7 +3,7 @@ import { ElementHandle, Page } from 'puppeteer';
 export async function goToDate(page: Page, selectedDate: string) {
   while (true) {
     const h2s = await page.$$('div#inhalt h2');
-    if (h2s.length === 0) throw new Error('No <h2> found in div#inhalt');
+    if (h2s.length === 0) throw new Error('Keine <h2> in div#inhalt gefunden');
 
     let raumBelegung: ElementHandle<Element> | null = null;
     for (const h2 of h2s) {
@@ -18,7 +18,7 @@ export async function goToDate(page: Page, selectedDate: string) {
     const match = h2Text?.match(/\d{2}\.\d{2}\.\d{4}/);
     const currentDate = match ? match[0] : null;
     if (currentDate === selectedDate) {
-      console.log('Reached selected date:', currentDate);
+      console.log('Ausgewähltes Datum erreicht:', currentDate);
       break;
     }
 
@@ -38,7 +38,7 @@ export async function goToDate(page: Page, selectedDate: string) {
       }
     }
 
-    if (!nextLink) throw new Error('No second right arrow link found');
+    if (!nextLink) throw new Error('Kein zweiter Pfeil nach rechts gefunden');
 
     // Click and wait for navigation
     await Promise.all([

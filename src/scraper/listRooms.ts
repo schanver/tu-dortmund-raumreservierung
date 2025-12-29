@@ -1,10 +1,10 @@
 import { Page } from 'puppeteer';
-import { Room, TimeSlot } from '../types';
-import { debug } from '../logger';
+import { Room, TimeSlot } from '../types.js';
+import { debug } from '../logger.js';
 
 export async function listRooms(page : Page) : Promise<[string,Room[]]> {
   await page.waitForSelector('div.rooms table');
-  debug('Room calendar loaded');
+  debug('Raumlist gefunden');
   let hoursLeftText :string = "";
 
   const listOfPs = await page.$$('div#inhalt div main table tbody tr td p');
