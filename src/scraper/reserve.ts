@@ -6,11 +6,11 @@ import { debug, info } from "../logger.js";
 
 export async function reserveRoom(page: Page, slot : TimeSlot) {
   try {
-  if(slot.element){
-    info(`Auf den Buchungslink klicken...`);
-    await slot.element.click()
-    await page.waitForNavigation({ waitUntil: 'networkidle2' });
-    debug(`Buchungsseite ist geladen`)
+    if(slot.element){
+      info(`Auf den Buchungslink klicken...`);
+      await slot.element.click()
+      await page.waitForNavigation({ waitUntil: 'networkidle2' });
+      debug(`Buchungsseite ist geladen`)
 
       const endTimes = await page.$$eval('select[name="bis"] option', options => 
         options.map(opt => opt.textContent?.trim() || '')
@@ -36,27 +36,34 @@ export async function reserveRoom(page: Page, slot : TimeSlot) {
         }
       });
 
-        const reservationType = await select(
+      const reservationType = await select(
         {
           message: 'Status:',
           choices: reservationTypes
         });
       const endTime = await select({
-          message: 'Bis:',
-          choices: endTimes.map(time => ({
-            name: time,
-            value: time
-          }))
-        }
+        message: 'Bis:',
+        choices: endTimes.map(time => ({
+          name: time,
+          value: time
+        }))
+      }
       );
 
-    info(`Formular wird ausgefüllt...`);
+      info(`Formular wird ausgefüllt...`);
 
       await page.type('input[name="comment"]', title);
 
       await page.select('select[name="mitlerner"]', reservationType);
 
-      await page.select('select[name="bis"]', endTime);
+      await page.click('select[name="bis"]')
+
+      const index = endTimes.indexOf(endTime)
+      for(let i = 0; i < index; i++) {
+        await page.keyboard.press('ArrowDown');
+      }
+
+      await page.keyboard.press('Enter');
 
       info(chalk.green(`Formular ausgefüllt mit:`));
       info(`  Titel: ${title}`);
@@ -65,10 +72,9 @@ export async function reserveRoom(page: Page, slot : TimeSlot) {
 
       await page.click('input[value=Reservieren]');
       await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
-      await new Promise(resolve => setTimeout(resolve, 2000));
-  } else {
+    } else {
       info(`Fehler: Für diesen Slot wurde kein anklickbares Element gefunden.`);
-  }
+    }
   } catch(e) {
     debug(`Fehler aufgetreten: ${e}`);
     console.error(e);
