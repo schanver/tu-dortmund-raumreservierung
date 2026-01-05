@@ -22,7 +22,7 @@ export async function listRooms(page : Page) : Promise<[string,Room[]]> {
   
   for (const row of rows) {
     const roomHeader = await row.$('th a');
-    const cells = await row.$$('td');
+    const cells = await row.$$('td.frei');
     if (!roomHeader || cells.length === 0) continue;
     
     const roomName = await page.evaluate(el => el.textContent?.trim() ?? '', roomHeader);
@@ -30,7 +30,7 @@ export async function listRooms(page : Page) : Promise<[string,Room[]]> {
     
     for (const td of cells) {
       const colspan = await td.evaluate(el => parseInt(el.getAttribute('colspan') ?? '1', 10));
-      const occupied = await td.evaluate(el => el.classList.contains('belegt'));
+
       const a = await td.$('a');
       if (!a) continue;
       
@@ -45,7 +45,6 @@ export async function listRooms(page : Page) : Promise<[string,Room[]]> {
       slots.push({
         from,
         durationHours: colspan,
-        occupied,
         element: a
       });
     }
