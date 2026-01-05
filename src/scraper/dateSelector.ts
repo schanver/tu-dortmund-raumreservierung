@@ -25,24 +25,42 @@ export async function goToDate(page: Page, selectedDate: string) {
     // Find the second right arrow each iteration
     await page.waitForSelector('td[align="right"] a');
     const nextLinks = await page.$$('td[align="right"] a');
-
-    let found = false;
+    const prevLinks = await page.$$('td[align="left"] a');
+    
+    let linkToClick: ElementHandle | null;
+    let foundNext : Boolean = false;
     let nextLink = null;
     for (const link of nextLinks) {
       const text = await page.evaluate(el => el.textContent?.trim(), link);
-      if (found && text === '>') {
+      if (foundNext && text === '>') {
         nextLink = link;
         break;
       } else if (text === '>') {
-        found = true;
+        foundNext = true;
+      }
+    }
+    let foundPrev : Boolean = false
+    let prevLink = null;
+    for (const link of prevLinks) {
+      const text = await page.evaluate(el => el.textContent?.trim(), link);
+      if (foundPrev && text === '<') {
+        prevLink = link;
+        break;
+      } else if (text === '<') {
+        foundPrev = true;
       }
     }
 
+    if(!currentDate) throw Error
+    linkToClick = currentDate < selectedDate ? nextLink : prevLink
+
     if (!nextLink) throw new Error('Kein zweiter Pfeil nach rechts gefunden');
+    if(!prevLink) throw new Error('Kein zweiter Pfeil nach links gefunden')
+    if(!linkToClick) throw new Error('Kein Link zum Auswahl verfügbar');
 
     // Click and wait for navigation
     await Promise.all([
-      nextLink.click(),
+      linkToClick.click(),
       page.waitForNavigation({ waitUntil: 'networkidle2' }),
     ]);
   }
