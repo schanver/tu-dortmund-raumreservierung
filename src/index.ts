@@ -1,108 +1,70 @@
 import puppeteer from 'puppeteer';
 import { login } from './scraper/login.js';
-import chalk from 'chalk';
 import { select } from '@inquirer/prompts';
 import { debug, info } from './logger.js';
 import { listRooms } from './scraper/listRooms.js';
-import { Room, TimeSlot } from './types.js';
 import { reserveRoom } from './scraper/reserve.js';
-import { next8Days } from './utils/reservationDates.js';
 import { goToDate } from './scraper/dateSelector.js';
+import { selectDate } from './prompts/selectDate.js'
+import { selectRoom } from './prompts/selectRoom.js'
+import { selectSlot } from './prompts/selectSlot.js'
 
-let selectedSlot: TimeSlot | null = null;
-let selectedRoom: Room | null = null;
-const menu = async () => {
+async function menu() {
+  debug("Typescript gestartet");
 
-  debug(`Typescript gestartet`);
-  const browser = await puppeteer.launch({ headless: true });
-  const page    = await browser.newPage();
+  const browser = await puppeteer.launch({ headless: false });
+  const page = await browser.newPage();
 
   try {
     await login(page);
-    info(`Erfolgreich angemeldet...`);
+    info("Erfolgreich angemeldet...");
 
-    dateLoop: while(true) {
-      const timestamp  = await select({
-        message: `Wählen Sie den Tag der Reservierung:`,
-        choices: [...next8Days(),"Beenden"],
-        pageSize: 8
-      });
-      await goToDate(page,timestamp)
+    let running = true;
+
+    while (running) {
+      const timestamp = await selectDate();
+      if (timestamp === "Beenden") break;
+
+      if(timestamp){ 
+      await goToDate(page, timestamp);
+      }
 
       const [hoursLeft, rooms] = await listRooms(page);
-      if(rooms.length === 0) {
-        info(`Keine Lernräume gefunden.`);
-        return;
+      if (rooms.length === 0) {
+        info("Keine Lernräume gefunden.");
+        continue;
       }
 
+      const room = await selectRoom(rooms, hoursLeft);
+      if (!room) continue;
 
-      roomLoop: while(true) {
-        const selectedRoomIndex = await select(
-          {
-            message: `Noch buchbar: ${hoursLeft.split(" ")[2]} Stunden\nWählen Sie den Lernraum:`,
-            choices: [
-              ...rooms.map((r,i) => ({
-                name: chalk(r.name),
-                value: i
-              })),
-              { name: "Zurück zum Datumauswahl", value: -1 }
-            ],
-            pageSize:13
-          }
-        );
-        if(selectedRoomIndex === -1) {
-          continue dateLoop;
+      const slot = await selectSlot(room);
+      if (!slot) continue;
+
+      await reserveRoom(page, slot);
+
+      running = (await select({
+        message: "Reserviere noch mehr?",
+        choices: ["Ja", "Nein"]
+      })) === "Ja";
+
+      if(running) {
+        await page.waitForSelector('p a');
+        const links = await page.$$('p a');
+        if(links.length > 1 && links[1]) {
+          await links[1].click();
         }
-        selectedRoom = rooms[selectedRoomIndex]!
-
-
-
-        debug('Ausgewählter Lernraum:', selectedRoom);
-
-        if(!selectedRoom.slots || selectedRoom.slots.length === 0) {
-          info(chalk.red(`Keine freien Plätze für ${selectedRoom.name}`));
-          return;
-        }
-
-        const availableSlots = selectedRoom.slots;
-        while(true){
-          if(availableSlots.length === 0) {
-            info(`Keine freie Plätze für ${selectedRoom.name}`);
-            return;
-          }
-
-          const selectedSlotIndex = await select({
-            message: `Verfügbare Zeitfenster für ${selectedRoom.name}:`,
-            choices: [
-              ...availableSlots.map((slot : TimeSlot, i) => ({
-                name: `Von ${slot.from} | Dauer: ${slot.durationHours} St.`,
-                value: i
-              })),
-              { name: "Zurück zum Raumauswahl", value: -1 },
-            ],
-            pageSize: 12
-          });
-
-          if(selectedSlotIndex === -1) {
-            continue roomLoop;
-          }
-          selectedSlot = availableSlots[selectedSlotIndex]!
-          break roomLoop;
+        else {
+          throw Error("Keinen Link zurück zum Menu gefunden");
         }
       }
-      break dateLoop;
     }
-
-    await reserveRoom(page,selectedSlot);
-
   } catch (e) {
     debug(`Fehler aufgetreten: ${e}`);
     console.error(e);
-  }
-  finally {
-    info(`Vorgang abgeschlossen, Browser wird geschlossen...`);
+  } finally {
+    info("Vorgang abgeschlossen, Browser wird geschlossen...");
     await browser.close();
-    return;
   }
 }
 
