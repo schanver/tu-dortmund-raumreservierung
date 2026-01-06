@@ -18,6 +18,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "boxen": "^8.0.1",
     "chalk": "^5.6.2",
     "dotenv": "^17.2.3",
     "inquirer": "^13.1.0",
