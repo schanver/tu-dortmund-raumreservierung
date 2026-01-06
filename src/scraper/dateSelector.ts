@@ -61,7 +61,7 @@ export async function goToDate(page: Page, selectedDate: string) {
     // Click and wait for navigation
     await Promise.all([
       linkToClick.click(),
-      page.waitForNavigation({ waitUntil: 'networkidle2' }),
+      page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
     ]);
   }
 }

@@ -9,7 +9,7 @@ export async function reserveRoom(page: Page, slot : TimeSlot) {
     if(slot.element){
       info(`Auf den Buchungslink klicken...`);
       await slot.element.click()
-      await page.waitForNavigation({ waitUntil: 'networkidle2' });
+      await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
       debug(`Buchungsseite ist geladen`)
 
       const endTimes = await page.$$eval('select[name="bis"] option', options => 
