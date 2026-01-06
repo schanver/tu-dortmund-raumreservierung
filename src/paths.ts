@@ -10,4 +10,4 @@ export const PROJECT_ROOT = path.resolve(__dirname, '..');
 
 
 // Move up one level to reach the project root
-dotenv.config({ path: path.resolve(PROJECT_ROOT, './.env') });
+dotenv.config({ quiet: true, path: path.resolve(PROJECT_ROOT, './.env') });

@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import chalk from 'chalk';
 import { PROJECT_ROOT } from './paths.js';
 
-dotenv.config({ path: `${PROJECT_ROOT}/.env` });
+dotenv.config({ quiet: true, path: `${PROJECT_ROOT}/.env` });
 
 export const config = {
   portalUrl: process.env.PORTAL_URL || '',
