@@ -1,6 +1,6 @@
 # TU-Dortmund-Raumreservierung-tui
 Automatisiertes Tool zur Reservierung von Lernräumen der Fakultät Informatik an der TU Dortmund mit Puppeter und Typescript.
-Interaktiv wählt das Tool Datum, Raum und Zeitfenster aus und reserviert den Raum automatich über die Webseite \
+Interaktiv wählt das Tool Datum, Raum und Zeitfenster aus und reserviert den Raum automatich über die Webseite 
 
 ![Preview](assets/preview.gif)
 ## 🛠 Voraussetzungen
