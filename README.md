@@ -51,4 +51,7 @@ npm start
 Dieses Projekt ist unter der [MIT](./LICENSE.md)-Lizenz lizenziert 
 
 
-
+## Weiterentwicklung
+- [ ] Implementierung zur Anzeige reservierter Lernräume im Format : Datum | Uhrzeit | Raum
+- [ ] Implementierung zur Stornierung reservierter Lernräume
+- [ ] Implementierung der Raumreservierung durch Parameter 
